@@ -1,28 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>3D Animation Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- 1. CSS -->
-  <link rel="stylesheet" href="css/style.css">
-  <!-- 2. Three.js CDN (fallback to local copy) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-  <!-- 3. Optional: OrbitControls for mouse navigation -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Animation Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: #ddd;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.3s backwards;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 1s ease-out 0.6s backwards;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+        }
+
+        .section h2 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .card p {
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            p {
+                font-size: 1.2rem;
+            }
+            .section h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="canvas-container"></div>
 
-  <!-- 4. Canvas container -->
-  <div id="scene-container"></div>
+    <div class="content">
+        <h1>3D Animation Experience</h1>
+        <p>Immerse yourself in a stunning world of interactive 3D graphics and smooth animations powered by Three.js</p>
+        <button class="btn" onclick="scrollToSection()">Explore More</button>
+        <div class="scroll-indicator">
+            <svg width="30" height="50" viewBox="0 0 30 50">
+                <rect x="10" y="10" width="10" height="30" rx="5" fill="none" stroke="#667eea" stroke-width="2"/>
+                <circle cx="15" cy="18" r="2" fill="#667eea">
+                    <animate attributeName="cy" from="18" to="30" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
+        </div>
+    </div>
 
-  <!-- 5. Overlay UI -->
-  <header>
-    <h1>3D Animation Demo</h1>
-    <p>Hover or click to explore.</p>
-  </header>
+    <div class="section" id="features">
+        <h2>Stunning Features</h2>
+        <p style="max-width: 700px; text-align: center; color: #aaa;">Experience cutting-edge 3D graphics that respond to your interaction</p>
+        <div class="grid">
+            <div class="card">
+                <h3>🌌 Immersive 3D</h3>
+                <p>Beautifully rendered 3D objects with realistic lighting and shadows that create depth and dimension.</p>
+            </div>
+            <div class="card">
+                <h3>✨ Smooth Animations</h3>
+                <p>Fluid 60fps animations powered by WebGL that bring every element to life seamlessly.</p>
+            </div>
+            <div class="card">
+                <h3>🎨 Dynamic Colors</h3>
+                <p>Color-shifting gradients and particles that evolve and transform as you explore the scene.</p>
+            </div>
+            <div class="card">
+                <h3>🕹️ Interactive</h3>
+                <p>Mouse-responsive elements that react to your movements for an engaging experience.</p>
+            </div>
+        </div>
+    </div>
 
-  <!-- 6. JS -->
-  <script src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script>
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        camera.position.z = 5;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x667eea, 1, 100);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        const pointLight2 = new THREE.PointLight(0xf093fb, 1, 100);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+
+        // Create main geometric shapes
+        const geometry1 = new THREE.IcosahedronGeometry(1, 0);
+        const material1 = new THREE.MeshStandardMaterial({
+            color: 0x667eea,
+            wireframe: false,
+            metalness: 0.7,
+            roughness: 0.2
+        });
+        const icosahedron = new THREE.Mesh(geometry1, material1);
+        icosahedron.position.set(-2, 0, 0);
+        scene.add(icosahedron);
+
+        const geometry2 = new THREE.TorusKnotGeometry(0.7, 0.2, 100, 16);
+        const material2 = new THREE.MeshStandardMaterial({
+            color: 0xf093fb,
+            wireframe: false,
+            metalness: 0.7,
+            roughness: 0.2
+        });
+        const torusKnot = new THREE.Mesh(geometry2, material2);
+        torusKnot.position.set(2, 0, 0);
+        scene.add(torusKnot);
+
+        // Particle system
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 20;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0x667eea,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Animation loop
+        let time = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            // Rotate main objects
+            icosahedron.rotation.x += 0.01;
+            icosahedron.rotation.y += 0.01;
+            torusKnot.rotation.x += 0.01;
+            torusKnot.rotation.y += 0.01;
+
+            // Floating animation
+            icosahedron.position.y = Math.sin(time) * 0.5;
+            torusKnot.position.y = Math.cos(time) * 0.5;
+
+            // Particle rotation
+            particlesMesh.rotation.y += 0.001;
+
+            // Mouse interaction
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (mouseY * 0.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            // Color animation
+            const colorShift = Math.sin(time * 0.5) * 0.5 + 0.5;
+            pointLight.intensity = 0.5 + colorShift * 0.5;
+            pointLight2.intensity = 0.5 + (1 - colorShift) * 0.5;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Smooth scroll function
+        function scrollToSection() {
+            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
